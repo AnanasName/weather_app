@@ -7,17 +7,20 @@ void main() {
 
 class WeatherForecast extends StatelessWidget {
   final List<String> days = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday'
+    'Понедельник',
+    'Вторник',
+    'Среда',
+    'Четверг',
+    'Пятница',
+    'Суббота',
+    'Воскресенье'
   ];
-  final List<String> temperatures = ['25°C', '28°C', '30°C', '26°C', '24°C'];
+  final List<String> temperatures = ['-1°C', '-3°C', '-5°C', '-4°C', '-2°C', '-2°C', '-3°C'];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Weather Forecast',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -27,9 +30,10 @@ class WeatherForecast extends StatelessWidget {
           title: Text('Weather Forecast'),
         ),
         body: Container(
-          height: 200,
+          height: WidgetsBinding
+              .instance.platformDispatcher.views.first.physicalSize.height,
           child: ListView.builder(
-            scrollDirection: Axis.horizontal,
+            scrollDirection: Axis.vertical,
             itemCount: days.length,
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(

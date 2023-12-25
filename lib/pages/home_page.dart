@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
 import '../models/weather_model.dart';
@@ -38,7 +39,6 @@ class _HomePageState extends State<HomePage> {
       final weather = await _weatherService
           .getWeather(cityName)
           .timeout(const Duration(seconds: 60));
-      print(weather);
       setState(() {
         _weather = weather;
       });
@@ -49,7 +49,6 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         fetchError = true;
       });
-      print(fetchError);
     }
   }
 
@@ -64,52 +63,61 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     if (_weather != null) {
       return Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-          child: Center(
-            child:
-            Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-              Text(_weather?.cityName ?? "Город",
-                  style: const TextStyle(
-                      fontFamily: '.SF UI Text',
-                      fontSize: 45,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87)),
-              Stack(
-                alignment: Alignment.topCenter,
-                children: [
-                  Lottie.asset("assets/${_weather?.icon ?? "01d"}.json",
-                      height: 225, width: 225),
-                  Text(
-                    '${_weather?.temperature.round()}°C',
+        body: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage(getBackgroundImage()),
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.2), BlendMode.dstATop),
+          )),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+            child: Center(
+              child:
+                  Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Text(_weather?.cityName ?? "Город",
                     style: const TextStyle(
                         fontFamily: '.SF UI Text',
-                        fontSize: 50,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.w600,
-                        fontStyle: FontStyle.italic),
-                  )
-                ],
-              ),
-              Text(_weather?.description ?? "Описание",
-                  style: const TextStyle(
-                      fontFamily: '.SF UI Text',
-                      fontSize: 25,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.black87)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Image.asset('assets/gauge.png', height: 50, width: 50),
-                  Text('${_weather?.pressure.round().toString()} мм.рт.с.' ??
-                      "Давление"),
-                  Image.asset('assets/wind.png', height: 50, width: 50),
-                  Text('${_weather?.speed} м/с' ?? "Скорость ветра"),
-                  Image.asset('assets/humidity.png', height: 50, width: 50),
-                  Text('${_weather?.humidity}%' ?? "Влажность"),
-                ],
-              ),
-            ]),
+                        fontSize: 45,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87)),
+                Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    Lottie.asset("assets/${_weather?.icon ?? "01d"}.json",
+                        height: 225, width: 225),
+                    Text(
+                      '${_weather?.temperature.round()}°C',
+                      style: const TextStyle(
+                          fontFamily: '.SF UI Text',
+                          fontSize: 50,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600,
+                          fontStyle: FontStyle.italic),
+                    )
+                  ],
+                ),
+                Text(_weather?.description ?? "Описание",
+                    style: const TextStyle(
+                        fontFamily: '.SF UI Text',
+                        fontSize: 25,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.black87)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Image.asset('assets/gauge.png', height: 50, width: 50),
+                    Text('${_weather?.pressure.round().toString()} мм.рт.с.' ??
+                        "Давление"),
+                    Image.asset('assets/wind.png', height: 50, width: 50),
+                    Text('${_weather?.speed} м/с' ?? "Скорость ветра"),
+                    Image.asset('assets/humidity.png', height: 50, width: 50),
+                    Text('${_weather?.humidity}%' ?? "Влажность"),
+                  ],
+                ),
+              ]),
+            ),
           ),
         ),
       );
@@ -128,14 +136,26 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
-    }
-    else{
+    } else {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
+  }
+}
+
+String getBackgroundImage() {
+  var hourNow = int.parse(DateFormat('kk').format(DateTime.now()));
+  if (hourNow >= 23 || hourNow < 4) {
+    return 'assets/images/1.jpg';
+  } else if (hourNow >= 4 && hourNow < 12) {
+    return 'assets/images/2.jpg';
+  } else if (hourNow >= 12 && hourNow < 17) {
+    return 'assets/images/3.jpg';
+  } else {
+    return 'assets/images/4.jpg';
   }
 }
 
