@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -15,16 +17,28 @@ class _HomePageState extends State<HomePage> {
 // api key
   final _weatherService = WeatherService("c341e34f9b7c327502cde34aa7817c5f");
   Weather? _weather;
+  bool fetchError = false;
 
 // Получаем прогноз погоды
 
   _fetchWeather() async {
 // получаем текущий город
-    String cityName = await _weatherService.getCurrentCity();
+    String cityName = "";
+    try {
+      cityName = await _weatherService
+          .getCurrentCity()
+          .timeout(const Duration(seconds: 40));
+    } catch (e) {
+      setState(() {
+        fetchError = true;
+      });
+    }
 // получить погоду для этого города
     try {
-      bool flag = true;
-      final weather = await _weatherService.getWeather(cityName);
+      final weather = await _weatherService
+          .getWeather(cityName)
+          .timeout(const Duration(seconds: 60));
+      print(weather);
       setState(() {
         _weather = weather;
       });
@@ -32,7 +46,10 @@ class _HomePageState extends State<HomePage> {
 
 // если есть ошибки, то:
     catch (e) {
-      print(e);
+      setState(() {
+        fetchError = true;
+      });
+      print(fetchError);
     }
   }
 
@@ -51,7 +68,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
           child: Center(
             child:
-                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+            Column(mainAxisAlignment: MainAxisAlignment.start, children: [
               Text(_weather?.cityName ?? "Город",
                   style: const TextStyle(
                       fontFamily: '.SF UI Text',
@@ -96,7 +113,23 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
-    } else {
+    } else if (fetchError == false) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else if (fetchError == true) {
+      return const Scaffold(
+        body: Center(
+          child: SelectableText(
+            "Проверьте подключение к интернету!",
+            style: TextStyle(fontSize: 12),
+          ),
+        ),
+      );
+    }
+    else{
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -107,26 +140,26 @@ class _HomePageState extends State<HomePage> {
 }
 
 // Класс "HomePage" является изменяемым виджетом состояния и наследуется от класса
-//  "StatefulWidget". В конструкторе класса указывается ключ 'key' и используется 
+//  "StatefulWidget". В конструкторе класса указывается ключ 'key' и используется
 //  вызов конструктора суперкласса.
 
-// Класс "_HomePageState" является состоянием виджета "HomePage" и наследуется от 
-// класса "State". В этом классе определены методы и переменные для получения и 
+// Класс "_HomePageState" является состоянием виджета "HomePage" и наследуется от
+// класса "State". В этом классе определены методы и переменные для получения и
 // отображения данных о погоде.
 
-// Метод "_fetchWeather" асинхронно получает текущий город и погодные данные с 
-// использованием экземпляра класса "WeatherService". После получения данных, 
-// метод обновляет состояние виджета с помощью метода "setState". Если возникают 
+// Метод "_fetchWeather" асинхронно получает текущий город и погодные данные с
+// использованием экземпляра класса "WeatherService". После получения данных,
+// метод обновляет состояние виджета с помощью метода "setState". Если возникают
 // ошибки, исключение обрабатывается и выводится сообщение об ошибке.
 
-// Метод "initState" вызывается при инициализации виджета и выполняет получение 
+// Метод "initState" вызывается при инициализации виджета и выполняет получение
 // данных о погоде с помощью метода "_fetchWeather".
 
-// Метод "build" строит виджет на основе полученных данных о погоде. Если данные 
+// Метод "build" строит виджет на основе полученных данных о погоде. Если данные
 // присутствуют, создается экземпляр "Scaffold" с разметкой для отображения погоды.
 //  В противном случае отображается индикатор загрузки. Виджет включает в себя текст
-//   с названием города и описанием погоды, а также изображения и текст с данными 
+//   с названием города и описанием погоды, а также изображения и текст с данными
 //   о давлении, скорости ветра и влажности.
 
-// Таким образом, этот код реализует виджет "HomePage", который получает и 
+// Таким образом, этот код реализует виджет "HomePage", который получает и
 // отображает данные о погоде.
